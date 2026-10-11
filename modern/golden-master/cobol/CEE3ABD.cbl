@@ -1,0 +1,13 @@
+      *****************************************************************
+      * Test harness: stub for the LE abend service CEE3ABD.
+      *****************************************************************
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CEE3ABD.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01  ABCODE                  PIC S9(9) BINARY.
+       01  TIMING                  PIC S9(9) BINARY.
+       PROCEDURE DIVISION USING ABCODE TIMING.
+           DISPLAY 'CEE3ABD ABEND CODE ' ABCODE
+           MOVE 16 TO RETURN-CODE
+           STOP RUN.
