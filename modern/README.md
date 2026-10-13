@@ -31,6 +31,7 @@ modern/demo.sh test     # 14 parity + business-rule tests
 modern/demo.sh bug      # legacy defect LD-1: last account never posted
 modern/demo.sh break    # truncation -> rounding: tests fail (-10.41 vs -10.42)
 modern/demo.sh fix      # revert: tests pass
+modern/demo.sh tour     # all of golden/bug/break/fix in one run, Enter between acts; always reverts
 ```
 
 ## Business rules (extracted from `app/cbl/CBACT04C.cbl`)

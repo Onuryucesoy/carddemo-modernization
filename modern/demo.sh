@@ -6,6 +6,7 @@
 #   bug     show legacy defect LD-1 (last account never updated)
 #   break   change truncation to rounding and show the tests fail
 #   fix     revert the change and show the tests pass again
+#   tour    golden + bug + break + fix in one run, pausing for Enter between acts
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SVC="$ROOT/modern/interest-service"
@@ -19,7 +20,35 @@ mvn_test() {
   [ "$rc" -eq 0 ] && echo "RESULT: ALL TESTS PASS" || echo "RESULT: TESTS FAILED"
 }
 
+pause() {
+  echo
+  if [ -t 0 ]; then read -r -p ">>> Press Enter to continue " _; else echo ">>> (continue)"; fi
+  clear 2>/dev/null || true
+}
+
+act() { printf '\n========== %s ==========\n\n' "$1"; }
+
 case "${1:-}" in
+  tour)
+    trap '"$0" fix >/dev/null 2>&1 || true' EXIT
+    act "1/4  THE ORIGINAL COBOL PROGRAM, RUNNING NOW"
+    "$0" golden
+    pause
+    act "2/4  RULE BR-2: INTEREST IS TRUNCATED, NOT ROUNDED"
+    grep -E "^\| BR-2 " "$ROOT/modern/README.md" | cut -d'|' -f3 | sed 's/\*\*//g; s/^ */  /'
+    echo; echo "  Java implementation:"
+    grep -n "RoundingMode.DOWN" "$CALC" | sed 's/^/  /'
+    pause
+    act "3/4  LEGACY BUG FOUND BY RUNNING THE OLD CODE"
+    "$0" bug
+    echo; echo "  The Java service keeps the bug for parity and offers a fix (a business decision):"
+    grep -nE "^ *(LEGACY_PARITY|CORRECTED)" "$CALC" | sed 's/^/  /'
+    pause
+    act "4/4  CHANGE ONE THING: ROUND INSTEAD OF TRUNCATE"
+    "$0" break || true
+    pause
+    act "PUT IT BACK"
+    "$0" fix ;;
   check)
     v="$(cobc --version)"; echo "${v%%$'\n'*}"
     v="$(java -version 2>&1)"; echo "${v%%$'\n'*}"
@@ -55,5 +84,5 @@ case "${1:-}" in
     sed -i 's/MONTHS_TIMES_PERCENT, 2, RoundingMode.HALF_UP)/MONTHS_TIMES_PERCENT, 2, RoundingMode.DOWN)/' "$CALC"
     grep -n "MONTHS_TIMES_PERCENT, 2, RoundingMode" "$CALC"
     mvn_test ;;
-  *) sed -n '2,9p' "$0"; exit 1 ;;
+  *) sed -n '2,10p' "$0"; exit 1 ;;
 esac
