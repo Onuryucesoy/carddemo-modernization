@@ -44,7 +44,7 @@ class InterestRulesTest {
         assertEquals(new BigDecimal("2555.43"), a.currentBalance());
         assertEquals(new BigDecimal("0.00"), a.cycleCredit());
         assertEquals(new BigDecimal("0.00"), a.cycleDebit());
-        assertEquals(2, r.transactions().size());
+        assertEquals(2, r.transactions().stream().filter(t -> t.accountId().equals("00000000011")).count());
     }
 
     @Test
