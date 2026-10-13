@@ -1,0 +1,27 @@
+name: interest-parity
+
+on:
+  push:
+    paths: ["app/cbl/CBACT04C.cbl", "app/cpy/**", "modern/**", ".github/workflows/interest-parity.yml"]
+  pull_request:
+    paths: ["app/cbl/CBACT04C.cbl", "app/cpy/**", "modern/**", ".github/workflows/interest-parity.yml"]
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Install GnuCOBOL
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gnucobol
+      - name: Regenerate golden master from legacy CBACT04C
+        run: |
+          modern/golden-master/run-cobol.sh seed
+          modern/golden-master/run-cobol.sh month-end
+      - name: Java service must match legacy output
+        working-directory: modern/interest-service
+        run: mvn -B test
