@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: carddemo-java
+  datasource:
+    url: jdbc:h2:mem:carddemo;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+carddemo:
+  import:
+    on-startup: true
+    # Directory holding the ASCII/ and EBCDIC/ sample folders (app/data in this repository).
+    data-dir: ../app/data
+    # ASCII or EBCDIC: which copy of the VSAM unload files to load.
+    source: ASCII
+    # Open decision D1 in docs/migration/cobol-to-java-plan.md (037 vs 1047).
+    ebcdic-charset: IBM037
